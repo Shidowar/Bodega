@@ -36,13 +36,23 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: build
-      
+    permissions:
+      id-token: write #This is required for requesting the JWT
+      contents: read #This is required for actions/checkout
+  
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
           name: java-app
       
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_542A385ADA1747A0AD692E9A7AA3B98B }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_92E8A9328ACB498FB9827C317A89C326 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_46BD2D2D96EA4F269A54C2D251A38BA3 }}
+
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
@@ -50,4 +60,4 @@ jobs:
           app-name: 'ListaDeTareas'
           slot-name: 'Production'
           package: '*.jar'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_A2070CB9D7224A90874AFDA3B5E37E81 }}
+          
